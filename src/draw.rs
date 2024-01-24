@@ -11,6 +11,12 @@ pub fn to_coord(game_coord: i32) -> f64 {
     (game_coord as f64) * BLOCK_SIZE
 }
 
+pub fn to_coord_u32(game_coord: i32) -> u32 {
+    // Multiply the game coordinate by the block size to get the GUI coordinate
+    to_coord(game_coord) as u32
+}
+
+
 // Draw a colored block at a specific position on the screen
 pub fn draw_block(color: Color, x: i32, y: i32, con: &Context, g: &mut G2d) {
     // Convert game coordinates to GUI coordinates
