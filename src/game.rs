@@ -82,4 +82,52 @@ impl Game {
             draw_rectangle(GAMEOVER_COLOR, 0, 0, self.width, self.height, con, g);
         }
     }
+
+    pub fn update(&mut self, delta_time: f64) {
+        self.waiting_time += delta_time;
+
+        if self.game_over {
+            if self.waiting_time > RESTART_TIME {
+                self.restart();
+            }
+            return;
+        }
+
+        if !self.food_exists {
+            self.add_food();
+        }
+
+        if self.waiting_time > MOVING_PERIOD {
+            self.update_snake(None);
+        }
+    }
+
+    fn check_eating(&mut self){
+        let (head_x, head_y): (i32, i32) = self.snake.head_position();
+
+        if self.food_exists && self.food_x == head_x && self.food_y == head_y {
+            self.food_exists = false;
+            self.snake.restore_tail();
+        }
+    }
+
+    fn check_if_snake_alive(&self, dir: Option<Direction>) -> bool {
+        let (next_x, next_y): (i32, i32) = self.snake.next_head(dir);
+
+        // Check if the snake hit a border
+        if self.snake.overlap_tail(next_x, next_y) {
+            return false;
+        }
+
+        // Check if the snake hit itself
+        // if next_x == 0 || next_x == self.width - 1 || next_y == 0 || next_y == self.height - 1 {
+        //    return false;
+        // }
+
+        // true
+
+        next_x > 0 && next_y > 0 && next_x < self.width - 1 && next_y < self.height - 1
+    }
+
+    
 }
