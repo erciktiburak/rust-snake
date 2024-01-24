@@ -4,11 +4,11 @@ use piston_window::{Context, G2d};
 use piston_window::types::Color;
 
 // Import the external draw_block function from the draw module
-use draw::draw_block;
+use crate::draw::draw_block;
 
 // Define the color for the snake
 const SNAKE_COLOR: Color = [0.0, 0.8, 0.0, 1.0];
-
+#[derive(Copy, Clone, PartialEq)]
 // Enum to represent the possible directions of the snake
 pub enum Direction {
     Up,
@@ -28,7 +28,7 @@ impl Direction {
         }
     }
 }
-
+#[derive(Debug, Clone)]
 // Struct to represent a block in the snake's body
 struct Block {
     x: i32,
@@ -107,5 +107,48 @@ impl Snake {
                 y: last_y,
             },
         };
+        self.body.push_front(new_block);
+        let removed_block = self.body.pop_back().unwrap();
+        self.tail = Some(removed_block);
+    }
+
+    pub fn head_direction(&self) -> Direction {
+        self.direction
+    }
+
+    pub fn next_head(&self, dir: Option<Direction>) -> (i32, i32) {
+        let (head_x, head_y): (i32, i32) = self.head_position();
+
+        let mut moving_dir = self.direction;
+        match dir {
+            Some(d) => moving_dir = d,
+            None => {}
+        }
+
+        match moving_dir {
+            Direction::Up => (head_x, head_y - 1),
+            Direction::Down => (head_x, head_y + 1),
+            Direction::Left => (head_x - 1, head_y),
+            Direction::Right => (head_x + 1, head_y),
+        }
+    }
+
+    pub fn restore_tail(&mut self) {
+        let blk = self.tail.clone().unwrap();
+        self.body.push_back(blk);
+    }
+
+    pub fn overlap_tail(&self, x: i32, y: i32) -> bool {
+        let mut ch = 0;
+        for block in &self.body {
+            if x == block.x && y == block.y {
+                return true;
+            }
+            ch += 1;
+            if ch == self.body.len() - 1 {
+                break;
+            }
+        }
+        return false;
     }
 }
