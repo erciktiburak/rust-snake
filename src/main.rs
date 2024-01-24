@@ -5,6 +5,11 @@ mod draw;
 mod snake;
 mod game;
 
+use piston_window::*;
+use piston_window::types::Color;
+
+use crate::game::Game;
+
 fn main() {
     println!("Hello, world!");
 }

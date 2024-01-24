@@ -8,8 +8,9 @@ use crate::draw::draw_block;
 
 // Define the color for the snake
 const SNAKE_COLOR: Color = [0.0, 0.8, 0.0, 1.0];
-#[derive(Copy, Clone, PartialEq)]
+
 // Enum to represent the possible directions of the snake
+#[derive(Copy, Clone, PartialEq)]
 pub enum Direction {
     Up,
     Down,
@@ -28,8 +29,9 @@ impl Direction {
         }
     }
 }
-#[derive(Debug, Clone)]
+
 // Struct to represent a block in the snake's body
+#[derive(Debug, Clone)]
 struct Block {
     x: i32,
     y: i32,
@@ -61,28 +63,25 @@ impl Snake {
         }
     }
 
+    // Method to draw the snake on the screen
     pub fn draw(&self, con: &Context, g: &mut G2d) {
-        // Iterate through each block in the snake's body
+        // Iterate through each block in the snake's body and draw it
         for block in &self.body {
-            // Draw the block
             draw_block(SNAKE_COLOR, block.x, block.y, con, g);
         }
     }
 
+    // Method to get the position of the snake's head
     pub fn head_position(&self) -> (i32, i32) {
-        // Get the position of the first block in the snake's body
         let head_block = self.body.front().unwrap();
-
-        // Return the position of the block
         (head_block.x, head_block.y)
     }
 
-    // Method to change the direction of the snake
+    // Method to move the snake forward in the specified direction
     pub fn move_forward(&mut self, dir: Option<Direction>) {
+        // Change the snake's direction if a new direction is specified
         match dir {
-            // If a direction was specified, change the snake's direction
             Some(d) => self.direction = d,
-            // Otherwise, keep the current direction
             None => (),
         }
 
@@ -90,41 +89,37 @@ impl Snake {
 
         // Create a new block in the direction the snake is moving
         let new_block = match self.direction {
-            Direction::Up => Block {
-                x: last_x,
-                y: last_y - 1,
-            },
-            Direction::Down => Block {
-                x: last_x,
-                y: last_y + 1,
-            },
-            Direction::Left => Block {
-                x: last_x - 1,
-                y: last_y,
-            },
-            Direction::Right => Block {
-                x: last_x + 1,
-                y: last_y,
-            },
+            Direction::Up => Block { x: last_x, y: last_y - 1 },
+            Direction::Down => Block { x: last_x, y: last_y + 1 },
+            Direction::Left => Block { x: last_x - 1, y: last_y },
+            Direction::Right => Block { x: last_x + 1, y: last_y },
         };
+
+        // Push the new block to the front of the snake's body
         self.body.push_front(new_block);
+
+        // Pop the last block from the back of the snake's body and store it as the tail
         let removed_block = self.body.pop_back().unwrap();
         self.tail = Some(removed_block);
     }
 
+    // Method to get the current direction of the snake
     pub fn head_direction(&self) -> Direction {
         self.direction
     }
 
+    // Method to get the next position of the snake's head in the specified direction
     pub fn next_head(&self, dir: Option<Direction>) -> (i32, i32) {
         let (head_x, head_y): (i32, i32) = self.head_position();
 
+        // Determine the direction in which the snake is moving
         let mut moving_dir = self.direction;
         match dir {
             Some(d) => moving_dir = d,
             None => {}
         }
 
+        // Calculate the next position of the snake's head based on the current direction
         match moving_dir {
             Direction::Up => (head_x, head_y - 1),
             Direction::Down => (head_x, head_y + 1),
@@ -133,22 +128,23 @@ impl Snake {
         }
     }
 
+    // Method to restore the tail of the snake
     pub fn restore_tail(&mut self) {
+        // Clone the tail block and push it to the back of the snake's body
         let blk = self.tail.clone().unwrap();
         self.body.push_back(blk);
     }
 
+    // Method to check if a given position overlaps with the snake's tail
     pub fn overlap_tail(&self, x: i32, y: i32) -> bool {
-        let mut ch = 0;
+        // Iterate through each block in the snake's body
         for block in &self.body {
+            // Check if the given position matches the position of any block in the body
             if x == block.x && y == block.y {
                 return true;
             }
-            ch += 1;
-            if ch == self.body.len() - 1 {
-                break;
-            }
         }
-        return false;
+        // If no overlap is found, return false
+        false
     }
 }
