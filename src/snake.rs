@@ -60,4 +60,52 @@ impl Snake {
             tail: None,
         }
     }
+
+    pub fn draw(&self, con: &Context, g: &mut G2d) {
+        // Iterate through each block in the snake's body
+        for block in &self.body {
+            // Draw the block
+            draw_block(SNAKE_COLOR, block.x, block.y, con, g);
+        }
+    }
+
+    pub fn head_position(&self) -> (i32, i32) {
+        // Get the position of the first block in the snake's body
+        let head_block = self.body.front().unwrap();
+
+        // Return the position of the block
+        (head_block.x, head_block.y)
+    }
+
+    // Method to change the direction of the snake
+    pub fn move_forward(&mut self, dir: Option<Direction>) {
+        match dir {
+            // If a direction was specified, change the snake's direction
+            Some(d) => self.direction = d,
+            // Otherwise, keep the current direction
+            None => (),
+        }
+
+        let (last_x, last_y): (i32, i32) = self.head_position();
+
+        // Create a new block in the direction the snake is moving
+        let new_block = match self.direction {
+            Direction::Up => Block {
+                x: last_x,
+                y: last_y - 1,
+            },
+            Direction::Down => Block {
+                x: last_x,
+                y: last_y + 1,
+            },
+            Direction::Left => Block {
+                x: last_x - 1,
+                y: last_y,
+            },
+            Direction::Right => Block {
+                x: last_x + 1,
+                y: last_y,
+            },
+        };
+    }
 }
